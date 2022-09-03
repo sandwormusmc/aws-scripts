@@ -15,11 +15,11 @@ echo "Enter service namespace, e.g. 'ses', 'ec2', etc.  Full list available by r
 read SERVICE
 
 echo -e "Checking roles that have access to $SERVICE.\n\n"
-for ROLE in $(aws --profile=intervene iam list-roles --query 'Roles[].Arn' | jq '.[]' -r); do
+for ROLE in $(aws iam list-roles --query 'Roles[].Arn' | jq '.[]' -r); do
 	if [ "${1}x" == "-xx" ]; then
 		echo -n "Checking role $ROLE : ";
 	fi
-	RESULT=$(aws --profile=intervene iam list-policies-granting-service-access --arn "${ROLE}" --service-namespaces "${SERVICE}" --query 'PoliciesGrantingServiceAccess[].Policies' | jq '.[]' -r;)
+	RESULT=$(aws iam list-policies-granting-service-access --arn "${ROLE}" --service-namespaces "${SERVICE}" --query 'PoliciesGrantingServiceAccess[].Policies' | jq '.[]' -r;)
 	if [ "${RESULT}x" == '[]x' -a "${1}x" == "-xx" ]; then
 		echo "no access."
 	elif [ "${RESULT}x" != '[]x' ]; then
@@ -28,9 +28,9 @@ for ROLE in $(aws --profile=intervene iam list-roles --query 'Roles[].Arn' | jq 
 done 
 
 echo -e "\n\nChecking users that have access to $SERVICE.\n\n"
-for USER in $(aws --profile=intervene iam list-users --query 'Users[].Arn' | jq '.[]' -r); do
+for USER in $(aws iam list-users --query 'Users[].Arn' | jq '.[]' -r); do
 	echo -n "Checking user $USER : ";
-	RESULT=$(aws --profile=intervene iam list-policies-granting-service-access --arn "${USER}" --service-namespaces "${SERVICE}" --query 'PoliciesGrantingServiceAccess[].Policies' | jq '.[]' -r;)
+	RESULT=$(aws iam list-policies-granting-service-access --arn "${USER}" --service-namespaces "${SERVICE}" --query 'PoliciesGrantingServiceAccess[].Policies' | jq '.[]' -r;)
 	if [ "${RESULT}x" == '[]x' -a "${1}x" == "-xx" ]; then
 		echo "no access."
 	elif [ "${RESULT}x" != '[]x' ]; then
